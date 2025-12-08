@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register — Sistem Manajemen Toko</title>
+    <title>Daftar — Sistem Manajemen Toko</title>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,123 +15,77 @@
     <script src="https://cdn.tailwindcss.com"></script>
 
     <style>
-        * {
-            font-family: 'Inter', sans-serif;
-        }
-
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-        }
-
-        .glass-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .fade-in {
-            animation: fadeIn 0.6s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .logo-gradient {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            transition: all 0.3s ease;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
-        }
-
-        .input-field {
-            transition: all 0.3s ease;
-        }
-
-        .input-field:focus {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+            font-family: 'Inter', sans-serif;
         }
     </style>
 </head>
 
-<body>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
 
-    <div class="min-h-screen flex items-center justify-center px-4 py-8">
-        <div class="glass-card shadow-2xl rounded-3xl p-8 md:p-10 w-full max-w-md fade-in">
-
-            <!-- Logo -->
-            <div class="flex flex-col items-center mb-8">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden border border-gray-100">
+        <div class="p-8 md:p-10">
+            <!-- Header -->
+            <div class="text-center mb-8">
                 <div
-                    class="logo-gradient w-20 h-20 rounded-2xl flex items-center justify-center text-white text-3xl font-bold">
+                    class="inline-flex items-center justify-center w-16 h-16 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 text-white text-2xl font-bold mb-4 shadow-lg">
                     MT
                 </div>
-                <h1 class="text-3xl font-bold text-gray-800 mt-5">Buat Akun Baru</h1>
-                <p class="text-gray-600 text-sm mt-2">Daftar untuk mengakses Sistem Manajemen Toko</p>
+                <h1 class="text-2xl font-bold text-gray-900">Buat Akun Baru</h1>
+                <p class="text-gray-500 text-sm mt-2">Mulai kelola stok dan penjualan dengan mudah</p>
             </div>
 
-            <!-- Form Register -->
+            <!-- Form -->
             <form method="POST" action="{{ route('dashboard') }}">
                 @csrf
 
-                <!-- Email -->
-                <div class="mb-5">
-                    <label class="block text-gray-700 font-semibold text-sm mb-2">Email</label>
-                    <input type="email" name="email"
-                        class="input-field w-full px-4 py-3.5 border border-gray-300 rounded-xl text-sm bg-white focus:bg-white focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
-                        placeholder="nama@email.com" required>
+                <div class="space-y-5">
+                    <!-- Email -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                        <input type="email" name="email"
+                            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+                            placeholder="nama@email.com" required>
+                    </div>
+
+                    <!-- Password -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                        <input type="password" name="password"
+                            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+                            placeholder="Minimal 8 karakter" required>
+                    </div>
+
+                    <!-- Confirm Password -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Konfirmasi Password</label>
+                        <input type="password" name="password_confirmation"
+                            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+                            placeholder="Ketik ulang password" required>
+                    </div>
+
+                    <!-- Button -->
+                    <button type="submit"
+                        class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold rounded-xl shadow-md hover:shadow-lg focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all transform hover:-translate-y-0.5">
+                        Daftar Sekarang
+                    </button>
                 </div>
-
-                <!-- Password -->
-                <div class="mb-5">
-                    <label class="block text-gray-700 font-semibold text-sm mb-2">Password</label>
-                    <input type="password" name="password"
-                        class="input-field w-full px-4 py-3.5 border border-gray-300 rounded-xl text-sm bg-white focus:bg-white focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
-                        placeholder="Minimal 8 karakter" required>
-                </div>
-
-                <!-- Konfirmasi Password -->
-                <div class="mb-6">
-                    <label class="block text-gray-700 font-semibold text-sm mb-2">Konfirmasi Password</label>
-                    <input type="password" name="password_confirmation"
-                        class="input-field w-full px-4 py-3.5 border border-gray-300 rounded-xl text-sm bg-white focus:bg-white focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
-                        placeholder="Ketik ulang password" required>
-                </div>
-
-                <!-- Tombol Register -->
-                <button type="submit" class="btn-primary w-full py-3.5 text-white font-semibold rounded-xl shadow-lg">
-                    Daftar Sekarang
-                </button>
-
-                <!-- Sudah Punya Akun -->
-                <div class="text-center mt-6">
-                    <p class="text-gray-600 text-sm">
-                        Sudah punya akun?
-                        <a href="{{ route('login') }}"
-                            class="text-purple-600 font-semibold hover:text-purple-700 hover:underline transition ml-1">
-                            Masuk di sini
-                        </a>
-                    </p>
-                </div>
-
             </form>
+
+            <!-- Footer -->
+            <div class="mt-8 text-center">
+                <p class="text-sm text-gray-500">
+                    Sudah punya akun?
+                    <a href="{{ route('login') }}" class="font-semibold text-blue-600 hover:text-blue-700 transition">
+                        Masuk di sini
+                    </a>
+                </p>
+            </div>
+        </div>
+
+        <!-- Bottom Decoration -->
+        <div class="bg-gray-50 px-8 py-4 border-t border-gray-100 text-center">
+            <p class="text-xs text-gray-400">&copy; {{ date('Y') }} ManagemenToko. All rights reserved.</p>
         </div>
     </div>
 
