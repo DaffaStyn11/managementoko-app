@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daftar — Sistem Manajemen Toko</title>
+    <title>Register — Sistem Manajemen Toko</title>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -32,42 +32,67 @@
                     MT
                 </div>
                 <h1 class="text-2xl font-bold text-gray-900">Buat Akun Baru</h1>
-                <p class="text-gray-500 text-sm mt-2">Mulai kelola stok dan penjualan dengan mudah</p>
+                <p class="text-gray-500 text-sm mt-2">Daftar untuk mulai mengelola toko Anda</p>
             </div>
 
             <!-- Form -->
-            <form method="POST" action="{{ route('dashboard') }}">
+            <form method="POST" action="{{ route('register') }}">
                 @csrf
 
                 <div class="space-y-5">
+                    <!-- Name -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Nama Lengkap</label>
+                        <div class="relative">
+                            <input type="text" name="name" value="{{ old('name') }}"
+                                class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none @error('name') border-red-500 @enderror"
+                                placeholder="Masukkan nama lengkap" required>
+                        </div>
+                        @error('name')
+                            <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
                     <!-- Email -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                        <input type="email" name="email"
-                            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
-                            placeholder="nama@email.com" required>
+                        <div class="relative">
+                            <input type="email" name="email" value="{{ old('email') }}"
+                                class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none @error('email') border-red-500 @enderror"
+                                placeholder="nama@email.com" required>
+                        </div>
+                        @error('email')
+                            <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <!-- Password -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
-                        <input type="password" name="password"
-                            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
-                            placeholder="Minimal 8 karakter" required>
+                        <div class="relative">
+                            <input type="password" name="password"
+                                class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none @error('password') border-red-500 @enderror"
+                                placeholder="Minimal 8 karakter" required>
+                        </div>
+                        @error('password')
+                            <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <!-- Confirm Password -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Konfirmasi Password</label>
-                        <input type="password" name="password_confirmation"
-                            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
-                            placeholder="Ketik ulang password" required>
+                        <div class="relative">
+                            <input type="password" name="password_confirmation"
+                                class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+                                placeholder="Ulangi password" required>
+                        </div>
                     </div>
 
                     <!-- Button -->
                     <button type="submit"
                         class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold rounded-xl shadow-md hover:shadow-lg focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all transform hover:-translate-y-0.5">
-                        Daftar Sekarang
+                        Daftar
                     </button>
                 </div>
             </form>
@@ -76,8 +101,9 @@
             <div class="mt-8 text-center">
                 <p class="text-sm text-gray-500">
                     Sudah punya akun?
-                    <a href="{{ route('login') }}" class="font-semibold text-blue-600 hover:text-blue-700 transition">
-                        Masuk di sini
+                    <a href="{{ route('login') }}"
+                        class="font-semibold text-blue-600 hover:text-blue-700 transition">
+                        Masuk Sekarang
                     </a>
                 </p>
             </div>

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login — Sistem Manajemen Toko</title>
+    <title>Reset Password — Sistem Manajemen Toko</title>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -31,12 +31,12 @@
                     class="inline-flex items-center justify-center w-16 h-16 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 text-white text-2xl font-bold mb-4 shadow-lg">
                     MT
                 </div>
-                <h1 class="text-2xl font-bold text-gray-900">Selamat Datang</h1>
-                <p class="text-gray-500 text-sm mt-2">Masuk ke dashboard manajemen toko Anda</p>
+                <h1 class="text-2xl font-bold text-gray-900">Lupa Password?</h1>
+                <p class="text-gray-500 text-sm mt-2">Masukkan email Anda untuk reset password</p>
             </div>
 
             <!-- Form -->
-            <form method="POST" action="{{ route('login') }}">
+            <form method="POST" action="#">
                 @csrf
 
                 <div class="space-y-5">
@@ -44,38 +44,16 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
                         <div class="relative">
-                            <input type="email" name="email" value="{{ old('email') }}"
-                                class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none @error('email') border-red-500 @enderror"
+                            <input type="email" name="email"
+                                class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
                                 placeholder="nama@email.com" required>
                         </div>
-                        @error('email')
-                            <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <!-- Password -->
-                    <div>
-                        <div class="flex items-center justify-between mb-2">
-                            <label class="block text-sm font-medium text-gray-700">Password</label>
-                            <a href="{{ route('resetpassword') }}"
-                                class="text-xs font-semibold text-blue-600 hover:text-blue-700 transition">
-                                Lupa Password?
-                            </a>
-                        </div>
-                        <div class="relative">
-                            <input type="password" name="password"
-                                class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none @error('password') border-red-500 @enderror"
-                                placeholder="Masukkan password" required>
-                        </div>
-                        @error('password')
-                            <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                        @enderror
                     </div>
 
                     <!-- Button -->
                     <button type="submit"
                         class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold rounded-xl shadow-md hover:shadow-lg focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all transform hover:-translate-y-0.5">
-                        Masuk
+                        Kirim Link Reset Password
                     </button>
                 </div>
             </form>
@@ -83,10 +61,10 @@
             <!-- Footer -->
             <div class="mt-8 text-center">
                 <p class="text-sm text-gray-500">
-                    Belum punya akun?
-                    <a href="{{ route('register') }}"
+                    Ingat password Anda?
+                    <a href="{{ route('login') }}"
                         class="font-semibold text-blue-600 hover:text-blue-700 transition">
-                        Daftar Sekarang
+                        Kembali ke Login
                     </a>
                 </p>
             </div>
