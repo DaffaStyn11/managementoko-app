@@ -49,14 +49,20 @@
                                 </div>
 
                                 {{-- Produk yang Dipasok --}}
-                                <div>
+                                <div class="md:col-span-2">
                                     <label for="produk_yang_dipasok" class="block text-sm font-medium text-gray-700 mb-2">
                                         Produk yang Dipasok <span class="text-red-500">*</span>
                                     </label>
-                                    <input type="text" name="produk_yang_dipasok" id="produk_yang_dipasok"
-                                        value="{{ old('produk_yang_dipasok') }}"
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 @error('produk_yang_dipasok') border-red-500 @enderror"
-                                        placeholder="Contoh: Beras, Gula, Minyak">
+                                    <select name="produk_yang_dipasok[]" id="produk_yang_dipasok" multiple
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 @error('produk_yang_dipasok') border-red-500 @enderror">
+                                        @foreach($produks as $produk)
+                                            <option value="{{ $produk->nama_produk }}" 
+                                                {{ in_array($produk->nama_produk, old('produk_yang_dipasok', [])) ? 'selected' : '' }}>
+                                                {{ $produk->nama_produk }} ({{ $produk->kategori->nama_kategori ?? '-' }})
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <p class="text-gray-500 text-xs mt-1">Pilih satu atau lebih produk yang dipasok oleh pemasok ini</p>
                                     @error('produk_yang_dipasok')
                                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                                     @enderror
@@ -124,4 +130,20 @@
     </div>
     {{-- SCRIPT --}}
     @include('components.scripts')
+
+    {{-- Select2 CSS --}}
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    
+    {{-- Select2 JS --}}
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    
+    <script>
+        $(document).ready(function() {
+            $('#produk_yang_dipasok').select2({
+                placeholder: 'Pilih produk yang dipasok...',
+                allowClear: true,
+                width: '100%'
+            });
+        });
+    </script>
 @endsection

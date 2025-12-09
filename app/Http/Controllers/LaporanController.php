@@ -36,8 +36,8 @@ class LaporanController extends Controller
         // Selisih (Penjualan - Pembelian)
         $selisih = $totalPenjualan - $totalPembelian;
         
-        // Data untuk tabel ringkasan
-        $laporanData = $this->getLaporanData($query, $jenis);
+        // Data untuk tabel ringkasan dengan pagination
+        $laporanData = $this->getLaporanDataPaginated($query, $jenis, $request);
         
         return view('pages.laporan.index', compact(
             'totalPenjualan',
@@ -206,5 +206,76 @@ class LaporanController extends Controller
         }
         
         return $data->sortByDesc('tanggal')->values();
+    }
+
+    private function getLaporanDataPaginated($query, $jenis, $request)
+    {
+        $data = collect();
+        
+        // Ambil data penjualan
+        if ($jenis == 'semua' || $jenis == 'penjualan') {
+            $penjualans = Penjualan::with('produk')
+                ->when($query['start'], function($q) use ($query) {
+                    return $q->whereDate('tanggal_penjualan', '>=', $query['start'])
+                             ->whereDate('tanggal_penjualan', '<=', $query['end']);
+                })
+                ->latest('tanggal_penjualan')
+                ->get()
+                ->map(function($item) {
+                    return [
+                        'kategori' => 'Penjualan',
+                        'deskripsi' => $item->produk->nama_produk . ' (' . $item->jumlah . ' ' . $item->produk->satuan . ')',
+                        'nominal' => $item->total_harga,
+                        'tanggal' => $item->tanggal_penjualan->format('Y-m-d'),
+                        'type' => 'penjualan'
+                    ];
+                });
+            
+            $data = $data->merge($penjualans);
+        }
+        
+        // Ambil data pembelian
+        if ($jenis == 'semua' || $jenis == 'pembelian') {
+            $pembelians = Pembelian::with('pemasok')
+                ->when($query['start'], function($q) use ($query) {
+                    return $q->whereDate('tanggal_pembelian', '>=', $query['start'])
+                             ->whereDate('tanggal_pembelian', '<=', $query['end']);
+                })
+                ->where('status', 'selesai')
+                ->latest('tanggal_pembelian')
+                ->get()
+                ->map(function($item) {
+                    return [
+                        'kategori' => 'Pembelian',
+                        'deskripsi' => $item->nama_produk . ' dari ' . $item->pemasok->nama_pemasok,
+                        'nominal' => $item->total_harga,
+                        'tanggal' => $item->tanggal_pembelian->format('Y-m-d'),
+                        'type' => 'pembelian'
+                    ];
+                });
+            
+            $data = $data->merge($pembelians);
+        }
+        
+        // Sort data
+        $data = $data->sortByDesc('tanggal')->values();
+        
+        // Manual pagination
+        $perPage = 10;
+        $currentPage = $request->get('page', 1);
+        $offset = ($currentPage - 1) * $perPage;
+        
+        $items = $data->slice($offset, $perPage)->values();
+        
+        return new \Illuminate\Pagination\LengthAwarePaginator(
+            $items,
+            $data->count(),
+            $perPage,
+            $currentPage,
+            [
+                'path' => $request->url(),
+                'query' => $request->query()
+            ]
+        );
     }
 }

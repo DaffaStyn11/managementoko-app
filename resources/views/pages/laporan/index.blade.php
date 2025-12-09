@@ -134,7 +134,7 @@
                             <tbody id="tableBody">
                                 @forelse($laporanData as $index => $item)
                                     <tr class="border-b hover:bg-gray-50">
-                                        <td class="py-3 px-4">{{ $index + 1 }}</td>
+                                        <td class="py-3 px-4">{{ $laporanData->firstItem() + $index }}</td>
                                         <td class="py-3 px-4">
                                             <span class="px-2 py-1 rounded text-xs font-medium
                                                 {{ $item['type'] == 'penjualan' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
@@ -160,8 +160,51 @@
                     </div>
 
                     @if($laporanData->count() > 0)
-                        <div class="mt-4 pt-4 border-t">
-                            <p class="text-sm text-gray-600">Total {{ $laporanData->count() }} transaksi</p>
+                        <div class="mt-4 pt-4 border-t flex items-center justify-between">
+                            <p class="text-sm text-gray-600">
+                                Menampilkan {{ $laporanData->firstItem() }} - {{ $laporanData->lastItem() }} dari {{ $laporanData->total() }} transaksi
+                            </p>
+                            
+                            {{-- Pagination --}}
+                            <div class="flex items-center gap-2">
+                                {{-- Previous Button --}}
+                                @if ($laporanData->onFirstPage())
+                                    <span class="px-3 py-2 text-sm text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">
+                                        <i data-feather="chevron-left" class="w-4 h-4"></i>
+                                    </span>
+                                @else
+                                    <a href="{{ $laporanData->previousPageUrl() }}" 
+                                        class="px-3 py-2 text-sm text-gray-700 bg-white border rounded-lg hover:bg-gray-50">
+                                        <i data-feather="chevron-left" class="w-4 h-4"></i>
+                                    </a>
+                                @endif
+
+                                {{-- Page Numbers --}}
+                                @foreach ($laporanData->getUrlRange(1, $laporanData->lastPage()) as $page => $url)
+                                    @if ($page == $laporanData->currentPage())
+                                        <span class="px-3 py-2 text-sm text-white bg-blue-600 rounded-lg">
+                                            {{ $page }}
+                                        </span>
+                                    @else
+                                        <a href="{{ $url }}" 
+                                            class="px-3 py-2 text-sm text-gray-700 bg-white border rounded-lg hover:bg-gray-50">
+                                            {{ $page }}
+                                        </a>
+                                    @endif
+                                @endforeach
+
+                                {{-- Next Button --}}
+                                @if ($laporanData->hasMorePages())
+                                    <a href="{{ $laporanData->nextPageUrl() }}" 
+                                        class="px-3 py-2 text-sm text-gray-700 bg-white border rounded-lg hover:bg-gray-50">
+                                        <i data-feather="chevron-right" class="w-4 h-4"></i>
+                                    </a>
+                                @else
+                                    <span class="px-3 py-2 text-sm text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">
+                                        <i data-feather="chevron-right" class="w-4 h-4"></i>
+                                    </span>
+                                @endif
+                            </div>
                         </div>
                     @endif
                 </div>

@@ -19,23 +19,29 @@ class PemasokController extends Controller
 
     public function create()
     {
-        return view('pages.pemasok.create');
+        $produks = \App\Models\Produk::where('is_active', true)->orderBy('nama_produk')->get();
+        return view('pages.pemasok.create', compact('produks'));
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
             'nama_pemasok' => 'required|string|max:255',
-            'produk_yang_dipasok' => 'required|string|max:255',
+            'produk_yang_dipasok' => 'required|array|min:1',
+            'produk_yang_dipasok.*' => 'string',
             'kontak' => 'required|string|max:255',
             'alamat' => 'required|string',
             'kategori_pemasok' => 'nullable|string|max:255'
         ], [
             'nama_pemasok.required' => 'Nama pemasok wajib diisi',
             'produk_yang_dipasok.required' => 'Produk yang dipasok wajib diisi',
+            'produk_yang_dipasok.min' => 'Pilih minimal 1 produk',
             'kontak.required' => 'Kontak wajib diisi',
             'alamat.required' => 'Alamat wajib diisi'
         ]);
+
+        // Convert array to comma-separated string
+        $validated['produk_yang_dipasok'] = implode(', ', $validated['produk_yang_dipasok']);
 
         Pemasok::create($validated);
 
@@ -45,23 +51,29 @@ class PemasokController extends Controller
 
     public function edit(Pemasok $pemasok)
     {
-        return view('pages.pemasok.edit', compact('pemasok'));
+        $produks = \App\Models\Produk::where('is_active', true)->orderBy('nama_produk')->get();
+        return view('pages.pemasok.edit', compact('pemasok', 'produks'));
     }
 
     public function update(Request $request, Pemasok $pemasok)
     {
         $validated = $request->validate([
             'nama_pemasok' => 'required|string|max:255',
-            'produk_yang_dipasok' => 'required|string|max:255',
+            'produk_yang_dipasok' => 'required|array|min:1',
+            'produk_yang_dipasok.*' => 'string',
             'kontak' => 'required|string|max:255',
             'alamat' => 'required|string',
             'kategori_pemasok' => 'nullable|string|max:255'
         ], [
             'nama_pemasok.required' => 'Nama pemasok wajib diisi',
             'produk_yang_dipasok.required' => 'Produk yang dipasok wajib diisi',
+            'produk_yang_dipasok.min' => 'Pilih minimal 1 produk',
             'kontak.required' => 'Kontak wajib diisi',
             'alamat.required' => 'Alamat wajib diisi'
         ]);
+
+        // Convert array to comma-separated string
+        $validated['produk_yang_dipasok'] = implode(', ', $validated['produk_yang_dipasok']);
 
         $pemasok->update($validated);
 
