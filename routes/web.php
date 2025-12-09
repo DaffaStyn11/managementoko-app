@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\KategoriController;
+use App\Http\Controllers\ProdukController;
 
 Route::get('/', function () {
     return view('auth.login');
@@ -14,30 +16,21 @@ Route::get('/resetpassword', function () {
     return view('auth.resetpassword');
 })->name('resetpassword');
 
-Route::get('/dashboard', function () {
-    return view('pages.dashboard.index');
-})->name('dashboard');
+Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
 
-Route::get('/produk', function () {
-    return view('pages.produk.index');
-})->name('produk');
+Route::resource('produk', ProdukController::class);
 
-Route::get('/pemasok', function () {
-    return view('pages.pemasok.index');
-})->name('pemasok');
+Route::resource('kategori', KategoriController::class);
 
-Route::get('/stok', function () {
-    return view('pages.stok.index');
-})->name('stok');
+Route::resource('pemasok', \App\Http\Controllers\PemasokController::class);
 
-Route::get('/penjualan', function () {
-    return view('pages.penjualan.index');
-})->name('penjualan');
+Route::resource('pembelian', \App\Http\Controllers\PembelianController::class);
 
-Route::get('/pembelian', function () {
-    return view('pages.pembelian.index');
-})->name('pembelian');
+Route::get('/stok', [\App\Http\Controllers\StokController::class, 'index'])->name('stok.index');
 
-Route::get('/laporan', function () {
-    return view('pages.laporan.index');
-})->name('laporan');
+Route::resource('penjualan', \App\Http\Controllers\PenjualanController::class);
+
+// Laporan Routes
+Route::get('/laporan', [\App\Http\Controllers\LaporanController::class, 'index'])->name('laporan');
+Route::get('/laporan/export-excel', [\App\Http\Controllers\LaporanController::class, 'exportExcel'])->name('laporan.export.excel');
+Route::get('/laporan/export-pdf', [\App\Http\Controllers\LaporanController::class, 'exportPdf'])->name('laporan.export.pdf');

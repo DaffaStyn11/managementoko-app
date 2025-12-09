@@ -2,8 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Stok;
-use App\Http\Controllers\Controller;
+use App\Models\Produk;
 use Illuminate\Http\Request;
 
 class StokController extends Controller
@@ -13,54 +12,13 @@ class StokController extends Controller
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Stok $stok)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Stok $stok)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Stok $stok)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Stok $stok)
-    {
-        //
+        $produks = Produk::with('kategori')->latest()->get();
+        $totalProduk = $produks->count();
+        $stokRendah = $produks->filter(function($produk) {
+            return $produk->isStokRendah();
+        })->count();
+        $totalKategori = \App\Models\Kategori::count();
+        
+        return view('pages.stok.index', compact('produks', 'totalProduk', 'stokRendah', 'totalKategori'));
     }
 }

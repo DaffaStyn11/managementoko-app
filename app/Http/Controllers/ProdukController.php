@@ -13,7 +13,12 @@ class ProdukController extends Controller
      */
     public function index()
     {
-        //
+        $produks = Produk::with('kategori')->latest()->get();
+        $totalProduk = $produks->count();
+        $totalStok = $produks->sum('stok');
+        $totalKategori = \App\Models\Kategori::count();
+        
+        return view('pages.produk.index', compact('produks', 'totalProduk', 'totalStok', 'totalKategori'));
     }
 
     /**
@@ -21,7 +26,9 @@ class ProdukController extends Controller
      */
     public function create()
     {
-        //
+        $kategoris = \App\Models\Kategori::all();
+        $kode_produk = $this->generateKodeProduk();
+        return view('pages.produk.create', compact('kategoris', 'kode_produk'));
     }
 
     /**
@@ -29,7 +36,34 @@ class ProdukController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'kode_produk' => 'required|string|unique:produks,kode_produk',
+            'nama_produk' => 'required|string|max:255',
+            'kategori_id' => 'required|exists:kategoris,id',
+            'deskripsi' => 'nullable|string',
+            'harga_beli' => 'required|numeric|min:0',
+            'harga_jual' => 'required|numeric|min:0',
+            'stok' => 'required|integer|min:0',
+            'stok_minimum' => 'required|integer|min:0',
+            'satuan' => 'required|string',
+            'barcode' => 'nullable|string',
+            'is_active' => 'boolean'
+        ], [
+            'kode_produk.required' => 'Kode produk wajib diisi',
+            'kode_produk.unique' => 'Kode produk sudah digunakan',
+            'nama_produk.required' => 'Nama produk wajib diisi',
+            'kategori_id.required' => 'Kategori wajib dipilih',
+            'harga_beli.required' => 'Harga beli wajib diisi',
+            'harga_jual.required' => 'Harga jual wajib diisi',
+            'stok.required' => 'Stok wajib diisi',
+        ]);
+
+        $validated['is_active'] = $request->has('is_active');
+
+        Produk::create($validated);
+
+        return redirect()->route('produk.index')
+            ->with('success', 'Produk berhasil ditambahkan');
     }
 
     /**
@@ -37,7 +71,8 @@ class ProdukController extends Controller
      */
     public function show(Produk $produk)
     {
-        //
+        $produk->load('kategori');
+        return view('pages.produk.show', compact('produk'));
     }
 
     /**
@@ -45,7 +80,8 @@ class ProdukController extends Controller
      */
     public function edit(Produk $produk)
     {
-        //
+        $kategoris = \App\Models\Kategori::all();
+        return view('pages.produk.edit', compact('produk', 'kategoris'));
     }
 
     /**
@@ -53,7 +89,34 @@ class ProdukController extends Controller
      */
     public function update(Request $request, Produk $produk)
     {
-        //
+        $validated = $request->validate([
+            'kode_produk' => 'required|string|unique:produks,kode_produk,' . $produk->id,
+            'nama_produk' => 'required|string|max:255',
+            'kategori_id' => 'required|exists:kategoris,id',
+            'deskripsi' => 'nullable|string',
+            'harga_beli' => 'required|numeric|min:0',
+            'harga_jual' => 'required|numeric|min:0',
+            'stok' => 'required|integer|min:0',
+            'stok_minimum' => 'required|integer|min:0',
+            'satuan' => 'required|string',
+            'barcode' => 'nullable|string',
+            'is_active' => 'boolean'
+        ], [
+            'kode_produk.required' => 'Kode produk wajib diisi',
+            'kode_produk.unique' => 'Kode produk sudah digunakan',
+            'nama_produk.required' => 'Nama produk wajib diisi',
+            'kategori_id.required' => 'Kategori wajib dipilih',
+            'harga_beli.required' => 'Harga beli wajib diisi',
+            'harga_jual.required' => 'Harga jual wajib diisi',
+            'stok.required' => 'Stok wajib diisi',
+        ]);
+
+        $validated['is_active'] = $request->has('is_active');
+
+        $produk->update($validated);
+
+        return redirect()->route('produk.index')
+            ->with('success', 'Produk berhasil diperbarui');
     }
 
     /**
@@ -61,6 +124,27 @@ class ProdukController extends Controller
      */
     public function destroy(Produk $produk)
     {
-        //
+        try {
+            $produk->delete();
+            return redirect()->route('produk.index')
+                ->with('success', 'Produk berhasil dihapus');
+        } catch (\Exception $e) {
+            return redirect()->route('produk.index')
+                ->with('error', 'Produk tidak dapat dihapus karena masih digunakan');
+        }
+    }
+
+    private function generateKodeProduk()
+    {
+        // Ambil kode produk tertinggi berdasarkan urutan kode, bukan created_at
+        $lastProduk = Produk::orderBy('kode_produk', 'desc')->first();
+        
+        if ($lastProduk && preg_match('/PRD(\d+)/', $lastProduk->kode_produk, $matches)) {
+            $number = intval($matches[1]) + 1;
+        } else {
+            $number = 1;
+        }
+        
+        return 'PRD' . str_pad($number, 5, '0', STR_PAD_LEFT);
     }
 }
