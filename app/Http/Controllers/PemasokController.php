@@ -20,6 +20,14 @@ class PemasokController extends Controller
     public function create()
     {
         $produks = \App\Models\Produk::where('is_active', true)->orderBy('nama_produk')->get();
+        
+        if (request()->ajax() || request()->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'produks' => $produks
+            ]);
+        }
+
         return view('pages.pemasok.create', compact('produks'));
     }
 
@@ -45,6 +53,13 @@ class PemasokController extends Controller
 
         Pemasok::create($validated);
 
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Pemasok berhasil ditambahkan'
+            ]);
+        }
+
         return redirect()->route('pemasok.index')
             ->with('success', 'Pemasok berhasil ditambahkan');
     }
@@ -52,6 +67,15 @@ class PemasokController extends Controller
     public function edit(Pemasok $pemasok)
     {
         $produks = \App\Models\Produk::where('is_active', true)->orderBy('nama_produk')->get();
+        
+        if (request()->ajax() || request()->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'data' => $pemasok,
+                'produks' => $produks
+            ]);
+        }
+
         return view('pages.pemasok.edit', compact('pemasok', 'produks'));
     }
 
@@ -76,6 +100,13 @@ class PemasokController extends Controller
         $validated['produk_yang_dipasok'] = implode(', ', $validated['produk_yang_dipasok']);
 
         $pemasok->update($validated);
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Pemasok berhasil diperbarui'
+            ]);
+        }
 
         return redirect()->route('pemasok.index')
             ->with('success', 'Pemasok berhasil diperbarui');

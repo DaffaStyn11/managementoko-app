@@ -15,7 +15,7 @@
                                     class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
                                     <i data-feather="user" class="w-4 h-4 text-white"></i>
                                 </div>
-                                <span class="text-gray-700 font-semibold text-sm hidden sm:block">Admin</span>
+                                <span class="text-gray-700 font-semibold text-sm hidden sm:block">{{ Auth::user()->name }}</span>
                                 <i data-feather="chevron-down" class="w-4 h-4 text-gray-400"></i>
                             </button>
 
@@ -24,11 +24,12 @@
 
                                 <div class="p-3 border-b">
                                     <p class="text-xs text-gray-500">Masuk sebagai</p>
-                                    <p class="font-semibold text-gray-900 text-sm">Administrator</p>
+                                    <p class="font-semibold text-gray-900 text-sm">{{ Auth::user()->name }}</p>
+                                    <p class="text-xs text-gray-400 mt-0.5">{{ Auth::user()->email }}</p>
                                 </div>
 
-                                <a href="#"
-                                    class="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 text-gray-700 text-sm">
+                                <a href="{{ route('profile') }}"
+                                    class="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 text-gray-700 text-sm transition-colors">
                                     <i data-feather="user" class="w-4 h-4"></i>
                                     <span>Profil Saya</span>
                                 </a>

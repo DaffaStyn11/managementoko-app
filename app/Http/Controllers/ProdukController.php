@@ -28,6 +28,17 @@ class ProdukController extends Controller
     {
         $kategoris = \App\Models\Kategori::all();
         $kode_produk = $this->generateKodeProduk();
+        
+        // AJAX Request
+        if (request()->ajax() || request()->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'kode_produk' => $kode_produk,
+                'kategoris' => $kategoris
+            ]);
+        }
+
+        // Regular Request
         return view('pages.produk.create', compact('kategoris', 'kode_produk'));
     }
 
@@ -60,8 +71,18 @@ class ProdukController extends Controller
 
         $validated['is_active'] = $request->has('is_active');
 
-        Produk::create($validated);
+        $produk = Produk::create($validated);
 
+        // AJAX Request
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Produk berhasil ditambahkan',
+                'data' => $produk->load('kategori')
+            ]);
+        }
+
+        // Regular Request
         return redirect()->route('produk.index')
             ->with('success', 'Produk berhasil ditambahkan');
     }
@@ -81,6 +102,17 @@ class ProdukController extends Controller
     public function edit(Produk $produk)
     {
         $kategoris = \App\Models\Kategori::all();
+        
+        // AJAX Request
+        if (request()->ajax() || request()->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'data' => $produk->load('kategori'),
+                'kategoris' => $kategoris
+            ]);
+        }
+
+        // Regular Request
         return view('pages.produk.edit', compact('produk', 'kategoris'));
     }
 
@@ -115,6 +147,16 @@ class ProdukController extends Controller
 
         $produk->update($validated);
 
+        // AJAX Request
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Produk berhasil diperbarui',
+                'data' => $produk->load('kategori')
+            ]);
+        }
+
+        // Regular Request
         return redirect()->route('produk.index')
             ->with('success', 'Produk berhasil diperbarui');
     }

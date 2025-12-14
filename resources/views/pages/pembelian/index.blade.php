@@ -22,16 +22,17 @@
                         <p class="text-gray-500 text-sm mt-1">Kelola semua transaksi pembelian.</p>
                     </div>
 
-                    <a href="{{ route('pembelian.create') }}"
-                        class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl shadow">
+                    <button onclick="openCreateModals()" type="button"
+                        class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl shadow transition-colors">
                         <i data-feather="plus" class="w-4"></i>
                         Tambah Pembelian
-                    </a>
+                    </button>
                 </div>
 
                 {{-- Alert Messages --}}
                 @if (session('success'))
-                    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-xl mb-4 flex items-center justify-between shadow">
+                    <div
+                        class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-xl mb-4 flex items-center justify-between shadow">
                         <span class="text-sm">{{ session('success') }}</span>
                         <button onclick="this.parentElement.remove()" class="text-green-700 hover:text-green-900">
                             <i data-feather="x" class="w-5 h-5"></i>
@@ -40,7 +41,8 @@
                 @endif
 
                 @if (session('error'))
-                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl mb-4 flex items-center justify-between shadow">
+                    <div
+                        class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl mb-4 flex items-center justify-between shadow">
                         <span class="text-sm">{{ session('error') }}</span>
                         <button onclick="this.parentElement.remove()" class="text-red-700 hover:text-red-900">
                             <i data-feather="x" class="w-5 h-5"></i>
@@ -127,30 +129,34 @@
                             @forelse ($pembelians as $pembelian)
                                 <tr class="border-b hover:bg-gray-50" data-status="{{ $pembelian->status }}">
                                     <td class="py-3 px-2 font-mono text-xs">{{ $pembelian->kode_pembelian }}</td>
-                                    <td class="py-3 px-2 text-gray-600">{{ $pembelian->tanggal_pembelian->format('d/m/Y') }}</td>
-                                    <td class="py-3 px-2 font-medium text-gray-900">{{ $pembelian->pemasok->nama_pemasok }}</td>
+                                    <td class="py-3 px-2 text-gray-600">{{ $pembelian->tanggal_pembelian->format('d/m/Y') }}
+                                    </td>
+                                    <td class="py-3 px-2 font-medium text-gray-900">{{ $pembelian->pemasok->nama_pemasok }}
+                                    </td>
                                     <td class="py-3 px-2 text-gray-600">{{ $pembelian->nama_produk }}</td>
                                     <td class="py-3 px-2 text-gray-600">{{ $pembelian->jumlah }}</td>
-                                    <td class="py-3 px-2 text-gray-900">Rp {{ number_format($pembelian->total_harga, 0, ',', '.') }}</td>
+                                    <td class="py-3 px-2 text-gray-900">Rp
+                                        {{ number_format($pembelian->total_harga, 0, ',', '.') }}</td>
                                     <td class="py-3 px-2">
                                         @php
                                             $statusColors = [
                                                 'pending' => 'bg-yellow-100 text-yellow-700',
                                                 'proses' => 'bg-blue-100 text-blue-700',
                                                 'selesai' => 'bg-green-100 text-green-700',
-                                                'dibatalkan' => 'bg-red-100 text-red-700'
+                                                'dibatalkan' => 'bg-red-100 text-red-700',
                                             ];
                                         @endphp
-                                        <span class="px-2 py-1 rounded text-xs {{ $statusColors[$pembelian->status] ?? 'bg-gray-100 text-gray-700' }}">
+                                        <span
+                                            class="px-2 py-1 rounded text-xs {{ $statusColors[$pembelian->status] ?? 'bg-gray-100 text-gray-700' }}">
                                             {{ ucfirst($pembelian->status) }}
                                         </span>
                                     </td>
                                     <td class="py-3 px-2 text-center">
                                         <div class="flex items-center justify-center gap-2">
-                                            <a href="{{ route('pembelian.edit', $pembelian) }}"
-                                                class="p-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100">
+                                            <button type="button" onclick="editPembelian({{ $pembelian->id }})"
+                                                class="p-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors">
                                                 <i data-feather="edit" class="w-4 h-4"></i>
-                                            </a>
+                                            </button>
 
                                             <form action="{{ route('pembelian.destroy', $pembelian) }}" method="POST"
                                                 onsubmit="return confirm('Apakah Anda yakin ingin menghapus pembelian ini?')">
@@ -201,7 +207,7 @@
             rows.forEach(row => {
                 const text = row.textContent.toLowerCase();
                 const status = row.getAttribute('data-status').toLowerCase();
-                
+
                 const matchSearch = text.includes(searchValue);
                 const matchStatus = statusValue === '' || status === statusValue;
 
@@ -222,5 +228,340 @@
 
         searchInput.addEventListener('keyup', filterTable);
         filterStatus.addEventListener('change', filterTable);
+
+        // Helper calculations
+        function calculateTotal(prefix) {
+            const jumlah = document.getElementById(`${prefix}_jumlah`).value || 0;
+            const harga = document.getElementById(`${prefix}_harga_satuan`).value || 0;
+            const total = jumlah * harga;
+            document.getElementById(`${prefix}_total_display`).textContent = 'Rp ' + new Intl.NumberFormat('id-ID').format(
+                total);
+        }
+
+        // Open Create Modal
+        async function openCreateModals() {
+            try {
+                const response = await fetch('/pembelian/create', {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('create_kode_pembelian').value = data.kode_pembelian;
+
+                    const pemasokSelect = document.getElementById('create_pemasok_id');
+                    pemasokSelect.innerHTML = '<option value="">Pilih Pemasok</option>';
+
+                    data.pemasoks.forEach(p => {
+                        pemasokSelect.innerHTML += `<option value="${p.id}">${p.nama_pemasok}</option>`;
+                    });
+
+                    openModal('createModal');
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        document.getElementById('create_jumlah').addEventListener('input', () => calculateTotal('create'));
+        document.getElementById('create_harga_satuan').addEventListener('input', () => calculateTotal('create'));
+
+        // Submit Create
+        async function submitCreate(event) {
+            event.preventDefault();
+            const btnText = document.getElementById('createBtnText');
+            const btnLoad = document.getElementById('createBtnLoading');
+
+            btnText.classList.add('hidden');
+            btnLoad.classList.remove('hidden');
+
+            const formData = new FormData(event.target);
+
+            try {
+                const response = await fetch('/pembelian', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    closeModal('createModal');
+                    showAlert('success', data.message);
+                    setTimeout(() => window.location.reload(), 1000);
+                } else {
+                    if (data.errors) showAlert('error', Object.values(data.errors).flat()[0]);
+                }
+            } catch (error) {
+                console.error(error);
+                showAlert('error', 'Gagal menyimpan data.');
+            } finally {
+                btnText.classList.remove('hidden');
+                btnLoad.classList.add('hidden');
+            }
+        }
+
+        // Edit Pembelian
+        async function editPembelian(id) {
+            try {
+                const response = await fetch(`/pembelian/${id}/edit`, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('edit_pembelian_id').value = data.data.id;
+                    document.getElementById('edit_kode_pembelian').value = data.data.kode_pembelian;
+                    document.getElementById('edit_tanggal_pembelian').value = data.data.tanggal_pembelian.split('T')[0];
+                    document.getElementById('edit_nama_produk').value = data.data.nama_produk;
+                    document.getElementById('edit_jumlah').value = data.data.jumlah;
+                    document.getElementById('edit_harga_satuan').value = data.data.harga_satuan;
+                    document.getElementById('edit_status').value = data.data.status;
+                    document.getElementById('edit_keterangan').value = data.data.keterangan || '';
+
+                    const pemasokSelect = document.getElementById('edit_pemasok_id');
+                    pemasokSelect.innerHTML = '<option value="">Pilih Pemasok</option>';
+                    data.pemasoks.forEach(p => {
+                        const selected = p.id === data.data.pemasok_id ? 'selected' : '';
+                        pemasokSelect.innerHTML +=
+                            `<option value="${p.id}" ${selected}>${p.nama_pemasok}</option>`;
+                    });
+
+                    calculateTotal('edit');
+                    openModal('editModal');
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        document.getElementById('edit_jumlah').addEventListener('input', () => calculateTotal('edit'));
+        document.getElementById('edit_harga_satuan').addEventListener('input', () => calculateTotal('edit'));
+
+        // Submit Edit
+        async function submitEdit(event) {
+            event.preventDefault();
+            const id = document.getElementById('edit_pembelian_id').value;
+            const btnText = document.getElementById('editBtnText');
+            const btnLoad = document.getElementById('editBtnLoading');
+
+            btnText.classList.add('hidden');
+            btnLoad.classList.remove('hidden');
+
+            const formData = new FormData(event.target);
+
+            try {
+                const response = await fetch(`/pembelian/${id}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    closeModal('editModal');
+                    showAlert('success', data.message);
+                    setTimeout(() => window.location.reload(), 1000);
+                } else {
+                    if (data.errors) showAlert('error', Object.values(data.errors).flat()[0]);
+                }
+            } catch (error) {
+                console.error(error);
+                showAlert('error', 'Gagal mengupdate data.');
+            } finally {
+                btnText.classList.remove('hidden');
+                btnLoad.classList.add('hidden');
+            }
+        }
+
+        function showAlert(type, message) {
+            const existingAlerts = document.querySelectorAll('.alert-dynamic');
+            existingAlerts.forEach(a => a.remove());
+
+            const alertClass = type === 'success' ? 'bg-green-100 border-green-400 text-green-700' :
+                'bg-red-100 border-red-400 text-red-700';
+            const alert = document.createElement('div');
+            alert.className =
+                `${alertClass} alert-dynamic px-4 py-3 rounded-xl mb-4 flex items-center justify-between shadow`;
+            alert.innerHTML = `
+                <span class="text-sm">${message}</span>
+                <button onclick="this.parentElement.remove()" class="${type === 'success' ? 'text-green-700 hover:text-green-900' : 'text-red-700 hover:text-red-900'}">
+                    <i data-feather="x" class="w-5 h-5"></i>
+                </button>
+            `;
+
+            const main = document.querySelector('main');
+            main.insertBefore(alert, main.firstChild);
+            feather.replace();
+            setTimeout(() => alert.remove(), 5000);
+        }
     </script>
+
+    {{-- Create Modal --}}
+    <x-modal id="createModal" title="Tambah Pembelian Baru">
+        <form id="createForm" onsubmit="submitCreate(event)">
+            @csrf
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Kode Pembelian</label>
+                    <input type="text" name="kode_pembelian" id="create_kode_pembelian" readonly
+                        class="w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-xl text-gray-900 text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Pembelian <span
+                            class="text-red-500">*</span></label>
+                    <input type="date" name="tanggal_pembelian" id="create_tanggal_pembelian"
+                        value="{{ date('Y-m-d') }}" required
+                        class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 transition-all outline-none">
+                </div>
+                <div class="col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Pemasok <span
+                            class="text-red-500">*</span></label>
+                    <select name="pemasok_id" id="create_pemasok_id" required
+                        class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 transition-all outline-none">
+                        <option value="">Pilih Pemasok</option>
+                    </select>
+                </div>
+                <div class="col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Nama Produk <span
+                            class="text-red-500">*</span></label>
+                    <input type="text" name="nama_produk" id="create_nama_produk" required
+                        class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 transition-all outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Jumlah <span
+                            class="text-red-500">*</span></label>
+                    <input type="number" name="jumlah" id="create_jumlah" required min="1"
+                        class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 transition-all outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Harga Satuan <span
+                            class="text-red-500">*</span></label>
+                    <input type="number" name="harga_satuan" id="create_harga_satuan" required min="0"
+                        class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 transition-all outline-none">
+                </div>
+                <div class="col-span-2 bg-blue-50 p-3 rounded-xl flex justify-between items-center">
+                    <span class="text-sm font-medium text-blue-700">Total Harga:</span>
+                    <span id="create_total_display" class="text-lg font-bold text-blue-800">Rp 0</span>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Status <span
+                            class="text-red-500">*</span></label>
+                    <select name="status" id="create_status" required
+                        class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 transition-all outline-none">
+                        <option value="pending">Pending</option>
+                        <option value="proses">Proses</option>
+                        <option value="selesai">Selesai</option>
+                        <option value="dibatalkan">Dibatalkan</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Keterangan</label>
+                    <input type="text" name="keterangan" id="create_keterangan"
+                        class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 transition-all outline-none">
+                </div>
+            </div>
+            <div class="flex justify-end gap-3 pt-4 mt-4 border-t">
+                <button type="button" onclick="closeModal('createModal')"
+                    class="px-6 py-3 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition-colors">
+                    Batal
+                </button>
+                <button type="submit"
+                    class="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all">
+                    <span id="createBtnText">Simpan</span>
+                    <span id="createBtnLoading" class="hidden">Menyimpan...</span>
+                </button>
+            </div>
+        </form>
+    </x-modal>
+
+    {{-- Edit Modal --}}
+    <x-modal id="editModal" title="Edit Pembelian">
+        <form id="editForm" onsubmit="submitEdit(event)">
+            @csrf
+            @method('PUT')
+            <input type="hidden" id="edit_pembelian_id">
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Kode Pembelian</label>
+                    <input type="text" name="kode_pembelian" id="edit_kode_pembelian" readonly
+                        class="w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-xl text-gray-900 text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Pembelian <span
+                            class="text-red-500">*</span></label>
+                    <input type="date" name="tanggal_pembelian" id="edit_tanggal_pembelian" required
+                        class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 transition-all outline-none">
+                </div>
+                <div class="col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Pemasok <span
+                            class="text-red-500">*</span></label>
+                    <select name="pemasok_id" id="edit_pemasok_id" required
+                        class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 transition-all outline-none">
+                    </select>
+                </div>
+                <div class="col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Nama Produk <span
+                            class="text-red-500">*</span></label>
+                    <input type="text" name="nama_produk" id="edit_nama_produk" required
+                        class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 transition-all outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Jumlah <span
+                            class="text-red-500">*</span></label>
+                    <input type="number" name="jumlah" id="edit_jumlah" required min="1"
+                        class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 transition-all outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Harga Satuan <span
+                            class="text-red-500">*</span></label>
+                    <input type="number" name="harga_satuan" id="edit_harga_satuan" required min="0"
+                        class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 transition-all outline-none">
+                </div>
+                <div class="col-span-2 bg-blue-50 p-3 rounded-xl flex justify-between items-center">
+                    <span class="text-sm font-medium text-blue-700">Total Harga:</span>
+                    <span id="edit_total_display" class="text-lg font-bold text-blue-800">Rp 0</span>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Status <span
+                            class="text-red-500">*</span></label>
+                    <select name="status" id="edit_status" required
+                        class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 transition-all outline-none">
+                        <option value="pending">Pending</option>
+                        <option value="proses">Proses</option>
+                        <option value="selesai">Selesai</option>
+                        <option value="dibatalkan">Dibatalkan</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Keterangan</label>
+                    <input type="text" name="keterangan" id="edit_keterangan"
+                        class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 transition-all outline-none">
+                </div>
+            </div>
+            <div class="flex justify-end gap-3 pt-4 mt-4 border-t">
+                <button type="button" onclick="closeModal('editModal')"
+                    class="px-6 py-3 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition-colors">
+                    Batal
+                </button>
+                <button type="submit"
+                    class="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all">
+                    <span id="editBtnText">Update</span>
+                    <span id="editBtnLoading" class="hidden">Mengupdate...</span>
+                </button>
+            </div>
+        </form>
+    </x-modal>
 @endsection

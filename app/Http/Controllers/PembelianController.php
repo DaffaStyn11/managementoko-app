@@ -21,8 +21,17 @@ class PembelianController extends Controller
 
     public function create()
     {
-        $pemasoks = Pemasok::all();
+        $pemasoks = \App\Models\Pemasok::all();
         $kode_pembelian = $this->generateKodePembelian();
+
+        if (request()->ajax() || request()->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'kode_pembelian' => $kode_pembelian,
+                'pemasoks' => $pemasoks
+            ]);
+        }
+
         return view('pages.pembelian.create', compact('pemasoks', 'kode_pembelian'));
     }
 
@@ -56,13 +65,29 @@ class PembelianController extends Controller
             $this->updateStokProduk($validated['nama_produk'], $validated['jumlah'], 'tambah');
         }
 
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Pembelian berhasil ditambahkan'
+            ]);
+        }
+
         return redirect()->route('pembelian.index')
             ->with('success', 'Pembelian berhasil ditambahkan');
     }
 
     public function edit(Pembelian $pembelian)
     {
-        $pemasoks = Pemasok::all();
+        $pemasoks = \App\Models\Pemasok::all();
+        
+        if (request()->ajax() || request()->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'data' => $pembelian->load('pemasok'),
+                'pemasoks' => $pemasoks
+            ]);
+        }
+
         return view('pages.pembelian.edit', compact('pembelian', 'pemasoks'));
     }
 
@@ -101,6 +126,13 @@ class PembelianController extends Controller
         }
 
         $pembelian->update($validated);
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Pembelian berhasil diperbarui'
+            ]);
+        }
 
         return redirect()->route('pembelian.index')
             ->with('success', 'Pembelian berhasil diperbarui');

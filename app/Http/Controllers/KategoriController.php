@@ -39,8 +39,18 @@ class KategoriController extends Controller
             'nama_kategori.max' => 'Nama kategori maksimal 255 karakter'
         ]);
 
-        Kategori::create($validated);
+        $kategori = Kategori::create($validated);
 
+        // AJAX Request
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Kategori berhasil ditambahkan',
+                'data' => $kategori
+            ]);
+        }
+
+        // Regular Request
         return redirect()->route('kategori.index')
             ->with('success', 'Kategori berhasil ditambahkan');
     }
@@ -58,6 +68,15 @@ class KategoriController extends Controller
      */
     public function edit(Kategori $kategori)
     {
+        // AJAX Request
+        if (request()->ajax() || request()->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'data' => $kategori
+            ]);
+        }
+
+        // Regular Request
         return view('pages.kategori.edit', compact('kategori'));
     }
 
@@ -77,6 +96,16 @@ class KategoriController extends Controller
 
         $kategori->update($validated);
 
+        // AJAX Request
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Kategori berhasil diperbarui',
+                'data' => $kategori
+            ]);
+        }
+
+        // Regular Request
         return redirect()->route('kategori.index')
             ->with('success', 'Kategori berhasil diperbarui');
     }

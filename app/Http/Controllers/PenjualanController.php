@@ -34,8 +34,17 @@ class PenjualanController extends Controller
 
     public function create()
     {
-        $produks = Produk::where('is_active', true)->get();
+        $produks = \App\Models\Produk::where('is_active', true)->get();
         $kode_penjualan = $this->generateKodePenjualan();
+        
+        if (request()->ajax() || request()->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'kode_penjualan' => $kode_penjualan,
+                'produks' => $produks
+            ]);
+        }
+
         return view('pages.penjualan.create', compact('produks', 'kode_penjualan'));
     }
 
@@ -74,13 +83,29 @@ class PenjualanController extends Controller
         $produk->stok -= $validated['jumlah'];
         $produk->save();
 
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Penjualan berhasil ditambahkan dan stok produk telah dikurangi'
+            ]);
+        }
+
         return redirect()->route('penjualan.index')
             ->with('success', 'Penjualan berhasil ditambahkan dan stok produk telah dikurangi');
     }
 
     public function edit(Penjualan $penjualan)
     {
-        $produks = Produk::where('is_active', true)->get();
+        $produks = \App\Models\Produk::where('is_active', true)->get();
+        
+        if (request()->ajax() || request()->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'data' => $penjualan->load('produk'),
+                'produks' => $produks
+            ]);
+        }
+
         return view('pages.penjualan.edit', compact('penjualan', 'produks'));
     }
 
@@ -125,6 +150,13 @@ class PenjualanController extends Controller
         $produkBaru->save();
 
         $penjualan->update($validated);
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Penjualan berhasil diperbarui dan stok produk telah disesuaikan'
+            ]);
+        }
 
         return redirect()->route('penjualan.index')
             ->with('success', 'Penjualan berhasil diperbarui dan stok produk telah disesuaikan');
