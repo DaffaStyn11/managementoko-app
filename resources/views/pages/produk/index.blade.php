@@ -254,10 +254,17 @@
             async function submitCreate(event) {
                 event.preventDefault();
 
+                // Clear previous errors
+                clearErrors('createModal');
+
                 document.getElementById('createBtnText').classList.add('hidden');
                 document.getElementById('createBtnLoading').classList.remove('hidden');
 
                 const formData = new FormData(event.target);
+                
+                // Handle checkbox properly - send 1 if checked, 0 if not
+                const isActive = document.getElementById('create_is_active').checked ? '1' : '0';
+                formData.set('is_active', isActive);
 
                 try {
                     const response = await fetch('/produk', {
@@ -271,13 +278,21 @@
 
                     const data = await response.json();
 
-                    if (data.success) {
+                    if (response.ok && data.success) {
                         closeModal('createModal');
                         showAlert('success', data.message);
                         setTimeout(() => window.location.reload(), 1000);
+                    } else {
+                        // Handle validation errors
+                        if (data.errors) {
+                            displayErrors('createModal', data.errors);
+                        } else {
+                            showAlert('error', data.message || 'Terjadi kesalahan saat menyimpan data');
+                        }
                     }
                 } catch (error) {
                     console.error('Error:', error);
+                    showAlert('error', 'Terjadi kesalahan pada server');
                 } finally {
                     document.getElementById('createBtnText').classList.remove('hidden');
                     document.getElementById('createBtnLoading').classList.add('hidden');
@@ -327,12 +342,19 @@
             async function submitEdit(event) {
                 event.preventDefault();
 
+                // Clear previous errors
+                clearErrors('editModal');
+
                 const id = document.getElementById('edit_produk_id').value;
 
                 document.getElementById('editBtnText').classList.add('hidden');
                 document.getElementById('editBtnLoading').classList.remove('hidden');
 
                 const formData = new FormData(event.target);
+                
+                // Handle checkbox properly - send 1 if checked, 0 if not
+                const isActive = document.getElementById('edit_is_active').checked ? '1' : '0';
+                formData.set('is_active', isActive);
 
                 try {
                     const response = await fetch(`/produk/${id}`, {
@@ -346,13 +368,21 @@
 
                     const data = await response.json();
 
-                    if (data.success) {
+                    if (response.ok && data.success) {
                         closeModal('editModal');
                         showAlert('success', data.message);
                         setTimeout(() => window.location.reload(), 1000);
+                    } else {
+                        // Handle validation errors
+                        if (data.errors) {
+                            displayErrors('editModal', data.errors);
+                        } else {
+                            showAlert('error', data.message || 'Terjadi kesalahan saat mengupdate data');
+                        }
                     }
                 } catch (error) {
                     console.error('Error:', error);
+                    showAlert('error', 'Terjadi kesalahan pada server');
                 } finally {
                     document.getElementById('editBtnText').classList.remove('hidden');
                     document.getElementById('editBtnLoading').classList.add('hidden');
@@ -377,6 +407,31 @@
                 feather.replace();
 
                 setTimeout(() => alert.remove(), 5000);
+            }
+
+            // Display validation errors
+            function displayErrors(modalId, errors) {
+                Object.keys(errors).forEach(field => {
+                    const input = document.getElementById(`${modalId === 'createModal' ? 'create' : 'edit'}_${field}`);
+                    if (input) {
+                        input.classList.add('border-red-500');
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'text-red-600 text-xs mt-1 error-message';
+                        errorDiv.textContent = errors[field][0];
+                        input.parentElement.appendChild(errorDiv);
+                    }
+                });
+            }
+
+            // Clear validation errors
+            function clearErrors(modalId) {
+                const modal = document.getElementById(modalId);
+                modal.querySelectorAll('.border-red-500').forEach(el => {
+                    el.classList.remove('border-red-500');
+                });
+                modal.querySelectorAll('.error-message').forEach(el => {
+                    el.remove();
+                });
             }
         </script>
 
@@ -423,15 +478,13 @@
                             class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Stok <span
-                                class="text-red-500">*</span></label>
-                        <input type="number" name="stok" id="create_stok" required min="0"
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Stok</label>
+                        <input type="number" name="stok" id="create_stok" min="0" value="0"
                             class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Stok Minimum <span
-                                class="text-red-500">*</span></label>
-                        <input type="number" name="stok_minimum" id="create_stok_minimum" required min="0"
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Stok Minimum</label>
+                        <input type="number" name="stok_minimum" id="create_stok_minimum" min="0" value="0"
                             class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none">
                     </div>
                     <div>
@@ -472,7 +525,7 @@
         <x-modal id="editModal" title="Edit Produk">
             <form id="editForm" onsubmit="submitEdit(event)">
                 @csrf
-                @method('PUT')
+                <input type="hidden" name="_method" value="PUT">
                 <input type="hidden" id="edit_produk_id">
                 <div class="grid grid-cols-2 gap-4">
                     <div>
@@ -512,15 +565,13 @@
                             class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Stok <span
-                                class="text-red-500">*</span></label>
-                        <input type="number" name="stok" id="edit_stok" required min="0"
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Stok</label>
+                        <input type="number" name="stok" id="edit_stok" min="0"
                             class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Stok Minimum <span
-                                class="text-red-500">*</span></label>
-                        <input type="number" name="stok_minimum" id="edit_stok_minimum" required min="0"
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Stok Minimum</label>
+                        <input type="number" name="stok_minimum" id="edit_stok_minimum" min="0"
                             class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none">
                     </div>
                     <div>

@@ -54,8 +54,8 @@ class ProdukController extends Controller
             'deskripsi' => 'nullable|string',
             'harga_beli' => 'required|numeric|min:0',
             'harga_jual' => 'required|numeric|min:0',
-            'stok' => 'required|integer|min:0',
-            'stok_minimum' => 'required|integer|min:0',
+            'stok' => 'nullable|integer|min:0',
+            'stok_minimum' => 'nullable|integer|min:0',
             'satuan' => 'required|string',
             'barcode' => 'nullable|string',
             'is_active' => 'boolean'
@@ -66,10 +66,12 @@ class ProdukController extends Controller
             'kategori_id.required' => 'Kategori wajib dipilih',
             'harga_beli.required' => 'Harga beli wajib diisi',
             'harga_jual.required' => 'Harga jual wajib diisi',
-            'stok.required' => 'Stok wajib diisi',
         ]);
 
-        $validated['is_active'] = $request->has('is_active');
+        // Set default values for optional fields
+        $validated['stok'] = $validated['stok'] ?? 0;
+        $validated['stok_minimum'] = $validated['stok_minimum'] ?? 0;
+        $validated['is_active'] = $request->input('is_active', 0) == 1;
 
         $produk = Produk::create($validated);
 
@@ -128,8 +130,8 @@ class ProdukController extends Controller
             'deskripsi' => 'nullable|string',
             'harga_beli' => 'required|numeric|min:0',
             'harga_jual' => 'required|numeric|min:0',
-            'stok' => 'required|integer|min:0',
-            'stok_minimum' => 'required|integer|min:0',
+            'stok' => 'nullable|integer|min:0',
+            'stok_minimum' => 'nullable|integer|min:0',
             'satuan' => 'required|string',
             'barcode' => 'nullable|string',
             'is_active' => 'boolean'
@@ -140,10 +142,12 @@ class ProdukController extends Controller
             'kategori_id.required' => 'Kategori wajib dipilih',
             'harga_beli.required' => 'Harga beli wajib diisi',
             'harga_jual.required' => 'Harga jual wajib diisi',
-            'stok.required' => 'Stok wajib diisi',
         ]);
 
-        $validated['is_active'] = $request->has('is_active');
+        // Set default values for optional fields
+        $validated['stok'] = $validated['stok'] ?? 0;
+        $validated['stok_minimum'] = $validated['stok_minimum'] ?? 0;
+        $validated['is_active'] = $request->input('is_active', 0) == 1;
 
         $produk->update($validated);
 
